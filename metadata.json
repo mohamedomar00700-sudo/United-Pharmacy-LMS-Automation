@@ -1,0 +1,5 @@
+{
+  "name": "United Pharmacy LMS Automation",
+  "description": "Automated tool to merge LMS data, apply completion logic, and generate reports for United Pharmacy.",
+  "requestFramePermissions": []
+}
