@@ -11,10 +11,18 @@ const getXLSX = (): any => {
     }
 
     // 2. Try the imported package (Fallback)
+    // In some environments, import * as X results in X being the module namespace object.
     const pkg = XLSXPkg as any;
+    
+    // Check if the package itself is the library
     if (pkg && pkg.read && pkg.utils) return pkg;
+    
+    // Check default export
     if (pkg && pkg.default && pkg.default.read && pkg.default.utils) return pkg.default;
     
+    // Check for weird ESM interop where keys might be nested
+    if (pkg && pkg.default && pkg.default.default) return pkg.default.default;
+
   } catch (e) {
     console.warn("Error resolving XLSX library:", e);
   }
