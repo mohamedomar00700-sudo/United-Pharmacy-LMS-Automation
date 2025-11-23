@@ -41,8 +41,8 @@ export interface FinalReportRow {
 }
 
 export enum FileType {
-  LMS1 = 'LMS Raw Data – Talent',
-  LMS2 = 'LMS Raw Data – Pharmacy',
+  LMS1 = 'LMS Raw Data – Platform 1',
+  LMS2 = 'LMS Raw Data – Platform 2',
   MASTER = 'Master Saudi Data Sheet',
 }
 
