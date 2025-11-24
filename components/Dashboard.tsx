@@ -4,8 +4,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
   PieChart, Pie, Cell 
 } from 'recharts';
-import { Download, Filter } from 'lucide-react';
+import { Download, Filter, FileText, MessageCircle, RotateCcw } from 'lucide-react';
 import { generateExcelFile } from '../services/excelService';
+import { generatePDF } from '../services/pdfService';
+import ReminderGenerator from './ReminderGenerator';
 
 interface DashboardProps {
   data: FinalReportRow[];
@@ -14,6 +16,7 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ data }) => {
   const [districtFilter, setDistrictFilter] = useState<string>('All');
   const [supervisorFilter, setSupervisorFilter] = useState<string>('All');
+  const [showReminderModal, setShowReminderModal] = useState(false);
 
   // Unique values for filters
   const districts = useMemo(() => ['All', ...Array.from(new Set(data.map(d => d.District))).sort()], [data]);
@@ -81,19 +84,28 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
   // Format percent helper
   const fmtPct = (val: number, total: number) => total > 0 ? Math.round((val / total) * 100) + '%' : '0%';
 
+  // Drill down handler
+  const handleChartClick = (data: any) => {
+    if (data && data.name) {
+      setDistrictFilter(data.name);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom duration-500">
       
       {/* Action Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex items-center space-x-4 w-full md:w-auto mb-4 md:mb-0">
+      <div className="flex flex-col xl:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 gap-4">
+        
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full xl:w-auto">
           <div className="flex items-center space-x-2">
             <Filter className="w-5 h-5 text-[#F4A460]" />
             <span className="font-semibold text-gray-700">Filters:</span>
           </div>
           
           <select 
-            className="border rounded-md px-3 py-1.5 text-sm bg-gray-50 focus:ring-2 focus:ring-[#F4A460] outline-none"
+            className="border rounded-md px-3 py-1.5 text-sm bg-gray-50 focus:ring-2 focus:ring-[#F4A460] outline-none w-full sm:w-auto"
             value={districtFilter}
             onChange={(e) => setDistrictFilter(e.target.value)}
           >
@@ -101,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </select>
 
           <select 
-            className="border rounded-md px-3 py-1.5 text-sm bg-gray-50 focus:ring-2 focus:ring-[#F4A460] outline-none"
+            className="border rounded-md px-3 py-1.5 text-sm bg-gray-50 focus:ring-2 focus:ring-[#F4A460] outline-none w-full sm:w-auto"
             value={supervisorFilter}
             onChange={(e) => setSupervisorFilter(e.target.value)}
           >
@@ -109,16 +121,35 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </select>
         </div>
 
-        <button 
-          onClick={() => generateExcelFile(filteredData)}
-          className="flex items-center space-x-2 bg-[#F4A460] hover:bg-orange-500 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md w-full md:w-auto justify-center"
-        >
-          <Download className="w-5 h-5" />
-          <span>Download Final Report</span>
-        </button>
+        {/* Buttons */}
+        <div className="flex flex-wrap justify-center gap-3 w-full xl:w-auto">
+          <button 
+            onClick={() => setShowReminderModal(true)}
+            className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Reminders</span>
+          </button>
+
+          <button 
+            onClick={() => generatePDF(stats, filteredData)}
+            className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
+          >
+            <FileText className="w-4 h-4" />
+            <span>PDF Summary</span>
+          </button>
+
+          <button 
+            onClick={() => generateExcelFile(filteredData)}
+            className="flex items-center space-x-2 bg-[#F4A460] hover:bg-orange-500 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm"
+          >
+            <Download className="w-4 h-4" />
+            <span>Excel Report</span>
+          </button>
+        </div>
       </div>
 
-      {/* NEW: Summarization Status Table (Matching Screenshot) */}
+      {/* Summarization Status Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
         <div className="bg-[#F4A460] text-white px-6 py-3 font-bold text-lg">
           Summarization Status
@@ -133,25 +164,21 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {/* Total Row */}
               <tr className="hover:bg-orange-50">
                 <td className="px-6 py-3 font-medium text-gray-700">Number Of Student</td>
                 <td className="px-6 py-3 text-center font-bold text-[#F4A460]">{stats.totalPharmacists}</td>
                 <td className="px-6 py-3 text-center text-gray-600">100%</td>
               </tr>
-              {/* Completed Row */}
               <tr className="hover:bg-orange-50">
                 <td className="px-6 py-3 font-medium text-gray-700">Number Of Student Who Completed</td>
                 <td className="px-6 py-3 text-center font-bold text-green-600">{(stats as any).totalCompleted}</td>
                 <td className="px-6 py-3 text-center text-gray-600">{fmtPct((stats as any).totalCompleted, stats.totalPharmacists)}</td>
               </tr>
-              {/* In Progress Row */}
               <tr className="hover:bg-orange-50">
                 <td className="px-6 py-3 font-medium text-gray-700">Number OF Student Who In Progress</td>
                 <td className="px-6 py-3 text-center font-bold text-orange-500">{(stats as any).totalInProgress}</td>
                 <td className="px-6 py-3 text-center text-gray-600">{fmtPct((stats as any).totalInProgress, stats.totalPharmacists)}</td>
               </tr>
-              {/* Not Started Row */}
               <tr className="hover:bg-orange-50">
                 <td className="px-6 py-3 font-medium text-gray-700">Number Of Students Who Did Not Started</td>
                 <td className="px-6 py-3 text-center font-bold text-gray-400">{(stats as any).totalNotStarted}</td>
@@ -166,7 +193,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Bar Chart: Completion by District */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Completion by District (Top 10)</h3>
+          <div className="flex justify-between items-center mb-4">
+             <h3 className="text-lg font-bold text-gray-800">Completion by District (Top 10)</h3>
+             <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded border">Click bar to filter table</span>
+          </div>
+          
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.byDistrict} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -175,8 +206,22 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 <YAxis dataKey="name" type="category" width={100} tick={{fontSize: 12}} />
                 <RechartsTooltip />
                 <Legend />
-                <Bar dataKey="Completed" stackId="a" fill="#10B981" radius={[0, 4, 4, 0]} />
-                <Bar dataKey="Pending" stackId="a" fill="#E5E7EB" radius={[0, 4, 4, 0]} />
+                <Bar 
+                  dataKey="Completed" 
+                  stackId="a" 
+                  fill="#10B981" 
+                  radius={[0, 4, 4, 0]} 
+                  cursor="pointer"
+                  onClick={handleChartClick}
+                />
+                <Bar 
+                  dataKey="Pending" 
+                  stackId="a" 
+                  fill="#E5E7EB" 
+                  radius={[0, 4, 4, 0]} 
+                  cursor="pointer"
+                  onClick={handleChartClick}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -212,8 +257,9 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
       {/* Preview Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
           <h3 className="font-bold text-lg text-gray-800">Detailed Report Preview</h3>
+          <span className="text-sm text-gray-500">Showing {filteredData.length} entries</span>
         </div>
         <div className="overflow-x-auto max-h-96">
           <table className="min-w-full text-left text-sm whitespace-nowrap">
@@ -229,7 +275,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredData.slice(0, 50).map((row, idx) => {
-                // Convert decimal to integer for display (0.5 -> 50)
                 const displayRate = Math.round(row["Completion Rate"] * 100);
                 
                 return (
@@ -266,6 +311,12 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </table>
         </div>
       </div>
+
+      {/* Reminder Modal */}
+      {showReminderModal && (
+        <ReminderGenerator data={filteredData} onClose={() => setShowReminderModal(false)} />
+      )}
+
     </div>
   );
 };

@@ -155,12 +155,12 @@ export const parseExcel = async <T>(file: File): Promise<T[]> => {
 };
 
 export const processData = (
-  lms1: LMSDataRow[],
-  lms2: LMSDataRow[],
+  talent: LMSDataRow[],
+  pharmacy: LMSDataRow[],
   master: MasterDataRow[]
 ): FinalReportRow[] => {
-  // 1. Combine Raw LMS sheets
-  const combinedLMS = [...lms1, ...lms2];
+  // 1. Combine Raw LMS sheets from Talent and Pharmacy
+  const combinedLMS = [...talent, ...pharmacy];
 
   // 2. Identify Lesson Columns dynamically based on scanning cell values
   const lessonColumns = new Set<string>();
@@ -297,7 +297,8 @@ export const processData = (
 export const generateExcelFile = (data: FinalReportRow[]) => {
   const lib = getXLSX();
   
-  if (!lib || !lib.utils) {
+  // Safe check
+  if (!lib?.utils) {
     console.error("XLSX library not loaded properly, cannot generate file.");
     alert("Error: XLSX library not available. Please refresh the page.");
     return;

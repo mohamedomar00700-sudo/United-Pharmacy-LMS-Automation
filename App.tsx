@@ -7,8 +7,8 @@ import { parseExcel, processData } from './services/excelService';
 
 const App: React.FC = () => {
   const [files, setFiles] = useState<Record<FileType, File | null>>({
-    [FileType.LMS1]: null,
-    [FileType.LMS2]: null,
+    [FileType.TALENT]: null,
+    [FileType.PHARMACY]: null,
     [FileType.MASTER]: null,
   });
 
@@ -22,7 +22,7 @@ const App: React.FC = () => {
   };
 
   const handleProcess = async () => {
-    if (!files[FileType.LMS1] || !files[FileType.LMS2] || !files[FileType.MASTER]) {
+    if (!files[FileType.TALENT] || !files[FileType.PHARMACY] || !files[FileType.MASTER]) {
       setError("Please upload all 3 required files before processing.");
       return;
     }
@@ -32,12 +32,12 @@ const App: React.FC = () => {
 
     try {
       // 1. Parse all files
-      const lms1Data = await parseExcel<LMSDataRow>(files[FileType.LMS1]!);
-      const lms2Data = await parseExcel<LMSDataRow>(files[FileType.LMS2]!);
+      const talentData = await parseExcel<LMSDataRow>(files[FileType.TALENT]!);
+      const pharmacyData = await parseExcel<LMSDataRow>(files[FileType.PHARMACY]!);
       const masterData = await parseExcel<MasterDataRow>(files[FileType.MASTER]!);
 
       // 2. Process logic
-      const result = processData(lms1Data, lms2Data, masterData);
+      const result = processData(talentData, pharmacyData, masterData);
       
       // Artificial delay for UX (so user sees the spinner)
       setTimeout(() => {
@@ -54,15 +54,15 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     setFiles({
-      [FileType.LMS1]: null,
-      [FileType.LMS2]: null,
+      [FileType.TALENT]: null,
+      [FileType.PHARMACY]: null,
       [FileType.MASTER]: null,
     });
     setFinalData(null);
     setError(null);
   };
 
-  const allFilesUploaded = files[FileType.LMS1] && files[FileType.LMS2] && files[FileType.MASTER];
+  const allFilesUploaded = files[FileType.TALENT] && files[FileType.PHARMACY] && files[FileType.MASTER];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 pb-12">
@@ -92,7 +92,7 @@ const App: React.FC = () => {
           <div className="text-center mb-10 space-y-2">
             <h2 className="text-3xl font-bold text-gray-900">Data Processor</h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
-              Upload your raw LMS exports and Master Sheet below. The system will automatically merge, clean, and analyze the completion rates.
+              Upload your raw data from <strong>Talent</strong> and <strong>Pharmacy</strong> platforms along with the Master Sheet.
             </p>
           </div>
         )}
@@ -102,16 +102,16 @@ const App: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <FileUpload 
-                type={FileType.LMS1} 
+                type={FileType.TALENT} 
                 onFileSelect={handleFileSelect} 
-                isUploaded={!!files[FileType.LMS1]} 
-                fileName={files[FileType.LMS1]?.name} 
+                isUploaded={!!files[FileType.TALENT]} 
+                fileName={files[FileType.TALENT]?.name} 
               />
               <FileUpload 
-                type={FileType.LMS2} 
+                type={FileType.PHARMACY} 
                 onFileSelect={handleFileSelect} 
-                isUploaded={!!files[FileType.LMS2]} 
-                fileName={files[FileType.LMS2]?.name} 
+                isUploaded={!!files[FileType.PHARMACY]} 
+                fileName={files[FileType.PHARMACY]?.name} 
               />
               <FileUpload 
                 type={FileType.MASTER} 

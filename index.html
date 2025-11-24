@@ -5,30 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>United Pharmacy LMS Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f3f4f6;
       }
     </style>
-    <!-- Explicitly load SheetJS to ensure window.XLSX is available -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script type="importmap">
+
+    <!-- React + other libs -->
+    <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
-    "xlsx": "https://aistudiocdn.com/xlsx@^0.18.5",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+    "react": "https://aistudiocdn.com/react@18.2.0",
+    "react/": "https://aistudiocdn.com/react@18.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@18.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@18.2.0/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@18.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@0.263.1",
+    "recharts": "https://aistudiocdn.com/recharts@2.12.0",
+    "jspdf": "https://aistudiocdn.com/jspdf@2.5.1",
+    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@3.8.2",
+    "xlsx": "https://aistudiocdn.com/xlsx@0.18.5"
   }
 }
 </script>
-</head>
+
+    <!-- XLSX browser version (fixes utils error) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  </head>
+
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

@@ -41,8 +41,8 @@ export interface FinalReportRow {
 }
 
 export enum FileType {
-  LMS1 = 'LMS Raw Data – Platform 1',
-  LMS2 = 'LMS Raw Data – Platform 2',
+  TALENT = 'Talent Platform Data',
+  PHARMACY = 'Pharmacy Platform Data',
   MASTER = 'Master Saudi Data Sheet',
 }
 
@@ -53,4 +53,6 @@ export interface ProcessedStats {
   byDistrict: { name: string; Completed: number; Pending: number }[];
   bySupervisor: { name: string; value: number }[];
   byStatus: { name: string; value: number }[];
+  totalInProgress: number;
+  totalNotStarted: number;
 }
